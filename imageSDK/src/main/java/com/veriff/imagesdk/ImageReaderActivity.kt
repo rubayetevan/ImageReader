@@ -17,7 +17,7 @@ class ImageReaderActivity : AppCompatActivity() {
         Timer().schedule(timerTask {
             val intent = Intent()
             intent.putExtra("text","Hello World")
-            setResult(123, intent)
+            setResult(RESULT_OK, intent)
             finish()
         }, 2000)
 
@@ -32,8 +32,7 @@ class ImageReaderActivity : AppCompatActivity() {
         private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
 
         fun start(context:Context,activityResultLauncher: ActivityResultLauncher<Intent>) {
-            val intent = Intent(context, ImageReaderActivity::class.java)
-            activityResultLauncher.launch(intent)
+            activityResultLauncher.launch(Intent(context, ImageReaderActivity::class.java))
         }
     }
 }
