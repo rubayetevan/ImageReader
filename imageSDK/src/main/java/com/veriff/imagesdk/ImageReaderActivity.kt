@@ -6,6 +6,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
+import com.veriff.imagesdk.util.RecognizeType
 import java.util.*
 import kotlin.concurrent.timerTask
 
@@ -20,7 +21,6 @@ class ImageReaderActivity : AppCompatActivity() {
             setResult(RESULT_OK, intent)
             finish()
         }, 2000)
-
     }
 
 
@@ -30,8 +30,10 @@ class ImageReaderActivity : AppCompatActivity() {
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
         private const val REQUEST_CODE_PERMISSIONS = 10
         private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
+        private lateinit var recognizeType:RecognizeType
 
-        fun start(context:Context,activityResultLauncher: ActivityResultLauncher<Intent>) {
+        fun start(context:Context,activityResultLauncher: ActivityResultLauncher<Intent>,recognizeType:RecognizeType) {
+            ImageReaderActivity.recognizeType =recognizeType
             activityResultLauncher.launch(Intent(context, ImageReaderActivity::class.java))
         }
     }
