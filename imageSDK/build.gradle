@@ -27,6 +27,10 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 dependencies {
@@ -42,4 +46,9 @@ dependencies {
     //ML Kits vision libraries
     implementation 'com.google.mlkit:text-recognition:16.0.0-beta4'
     implementation 'com.google.mlkit:face-detection:16.1.5'
+
+    def camerax_version = "1.2.0-alpha02"
+    implementation "androidx.camera:camera-camera2:${camerax_version}"
+    implementation "androidx.camera:camera-lifecycle:${camerax_version}"
+    implementation "androidx.camera:camera-view:${camerax_version}"
 }
