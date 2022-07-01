@@ -16,11 +16,14 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCapture.CAPTURE_MODE_MINIMIZE_LATENCY
+import androidx.camera.core.ImageCapture.FLASH_MODE_AUTO
 import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.lifecycleScope
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.FaceDetection
 import com.google.mlkit.vision.face.FaceDetectorOptions
@@ -28,6 +31,7 @@ import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.veriff.imagesdk.databinding.ActivityImageReaderBinding
 import com.veriff.imagesdk.util.RecognizeType
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.ExecutorService
@@ -53,27 +57,31 @@ class ImageReaderActivity : AppCompatActivity() {
             startCamera()
         } else {
             ActivityCompat.requestPermissions(
-                this, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
+                this@ImageReaderActivity, REQUIRED_PERMISSIONS, REQUEST_CODE_PERMISSIONS)
         }
 
         // Set up the listeners for take photo and video capture buttons
-        viewBinding.imageCaptureButton.setOnClickListener { takePhoto() }
-        cameraExecutor = Executors.newSingleThreadExecutor()
+        viewBinding.imageCaptureButton.setOnClickListener {
+            viewBinding.imageCaptureButton.visibility = View.GONE
+                takePhoto()
+        }
 
+        // initialize camera executor
+        cameraExecutor = Executors.newSingleThreadExecutor()
     }
 
-    private fun takePhoto() {
+    private fun takePhoto() = lifecycleScope.launch {
         // Get a stable reference of the modifiable image capture use case
-        val imageCapture = imageCapture ?: return
+        val imageCapture = imageCapture ?: return@launch
 
         // Create time stamped name and MediaStore entry.
         val name = SimpleDateFormat(FILENAME_FORMAT, Locale.US)
             .format(System.currentTimeMillis())
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, name)
-            put(MediaStore.MediaColumns.MIME_TYPE, "image/jpeg")
+            put(MediaStore.MediaColumns.MIME_TYPE, MIME_TYPE)
             if (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) {
-                put(MediaStore.Images.Media.RELATIVE_PATH, "Pictures/CameraX-Image")
+                put(MediaStore.Images.Media.RELATIVE_PATH, IMAGE_SAVE_PATH)
             }
         }
 
@@ -88,20 +96,22 @@ class ImageReaderActivity : AppCompatActivity() {
         // been taken
         imageCapture.takePicture(
             outputOptions,
-            ContextCompat.getMainExecutor(this),
+            ContextCompat.getMainExecutor(this@ImageReaderActivity),
             object : ImageCapture.OnImageSavedCallback {
                 override fun onError(exc: ImageCaptureException) {
                     Log.e(TAG, "Photo capture failed: ${exc.message}", exc)
                 }
-
                 override fun onImageSaved(output: ImageCapture.OutputFileResults) {
                     val msg = "Photo capture succeeded: ${output.savedUri}"
                     Log.d(TAG, msg)
-                    viewBinding.imageCaptureButton.visibility = View.GONE
-                    viewBinding.viewFinder.visibility = View.GONE
-                    viewBinding.progressBar.visibility = View.VISIBLE
-                    viewBinding.textView.visibility = View.VISIBLE
+                    runOnUiThread {
+                        viewBinding.imageCaptureButton.visibility = View.GONE
+                        viewBinding.viewFinder.visibility = View.GONE
+                        viewBinding.progressBar.visibility = View.VISIBLE
+                        viewBinding.textView.visibility = View.VISIBLE
+                    }
                     processImage(output.savedUri)
+
                 }
             }
         )
@@ -109,7 +119,6 @@ class ImageReaderActivity : AppCompatActivity() {
 
     private fun processImage(savedUri: Uri?) {
         savedUri?.let { uri ->
-
             when (recognizeType) {
                 RecognizeType.TEXT -> processImageToText(uri)
                 RecognizeType.FACE -> processImageToFace(uri)
@@ -173,12 +182,8 @@ class ImageReaderActivity : AppCompatActivity() {
     }
 
     private fun startCamera() {
-        val cameraProviderFuture = ProcessCameraProvider.getInstance(this)
-
+        val cameraProviderFuture = ProcessCameraProvider.getInstance(this@ImageReaderActivity)
         cameraProviderFuture.addListener({
-            // Used to bind the lifecycle of cameras to the lifecycle owner
-            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
-
             // Preview
             val preview = Preview.Builder()
                 .build()
@@ -187,10 +192,15 @@ class ImageReaderActivity : AppCompatActivity() {
                 }
 
             imageCapture = ImageCapture.Builder()
+                .setFlashMode(FLASH_MODE_AUTO)
+                .setCaptureMode(CAPTURE_MODE_MINIMIZE_LATENCY)
                 .build()
 
             // Select back camera as a default
             val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
+
+            // Used to bind the lifecycle of cameras to the lifecycle owner
+            val cameraProvider: ProcessCameraProvider = cameraProviderFuture.get()
 
             try {
                 // Unbind use cases before rebinding
@@ -198,13 +208,13 @@ class ImageReaderActivity : AppCompatActivity() {
 
                 // Bind use cases to camera
                 cameraProvider.bindToLifecycle(
-                    this, cameraSelector, preview, imageCapture)
+                    this@ImageReaderActivity, cameraSelector, preview, imageCapture)
 
             } catch (exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
             }
 
-        }, ContextCompat.getMainExecutor(this))
+        }, ContextCompat.getMainExecutor(this@ImageReaderActivity))
     }
 
     private fun allPermissionsGranted() = REQUIRED_PERMISSIONS.all {
@@ -221,7 +231,7 @@ class ImageReaderActivity : AppCompatActivity() {
             if (allPermissionsGranted()) {
                 startCamera()
             } else {
-                Toast.makeText(this,
+                Toast.makeText(this@ImageReaderActivity,
                     "Permissions not granted by the user.",
                     Toast.LENGTH_SHORT).show()
                 finish()
@@ -235,6 +245,8 @@ class ImageReaderActivity : AppCompatActivity() {
     }
 
     companion object {
+        const val MIME_TYPE = "image/jpeg"
+        const val IMAGE_SAVE_PATH = "Pictures/Veriff/Imagesdk"
         const val KEY_DATA ="data"
         const val RESULT_SUCCESS =1
         const val RESULT_ERROR =0
