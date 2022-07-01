@@ -22,6 +22,8 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.google.mlkit.vision.common.InputImage
+import com.google.mlkit.vision.face.FaceDetection
+import com.google.mlkit.vision.face.FaceDetectorOptions
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.latin.TextRecognizerOptions
 import com.veriff.imagesdk.databinding.ActivityImageReaderBinding
@@ -107,28 +109,62 @@ class ImageReaderActivity : AppCompatActivity() {
 
     private fun processImage(savedUri: Uri?) {
         savedUri?.let { uri ->
-            val image: InputImage = InputImage.fromFilePath(this@ImageReaderActivity, uri)
+
             when (recognizeType) {
-                RecognizeType.TEXT -> processImageToText(image)
-                RecognizeType.FACE -> processImageToFace(image)
+                RecognizeType.TEXT -> processImageToText(uri)
+                RecognizeType.FACE -> processImageToFace(uri)
             }
         } ?: run {
             Log.e(TAG, "processImage: savedUri is null")
         }
     }
 
-    private fun processImageToFace(image: InputImage) {
-        // TODO: Will be implemented in future
+    private fun processImageToFace(uri: Uri) {
+        val image: InputImage = InputImage.fromFilePath(this@ImageReaderActivity, uri)
+        val highAccuracyOpts = FaceDetectorOptions.Builder()
+            .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
+            .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
+            .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
+            .build()
+        val detector = FaceDetection.getClient(highAccuracyOpts)
+        detector.process(image)
+            .addOnSuccessListener { faces ->
+                Log.d(TAG, "Number of face found in the image: ${faces.size}")
+                val intent = Intent()
+                if (faces.size == 1) {
+                    intent.putExtra(KEY_RECOGNIZE_TYPE, recognizeType.toString())
+                    intent.putExtra(KEY_DATA, uri.toString())
+                    intent.putExtra(KEY_NUMBER_OF_FACES, faces.size)
+                    setResult(RESULT_SUCCESS, intent)
+                } else {
+                    intent.putExtra(KEY_RECOGNIZE_TYPE, recognizeType.toString())
+                    intent.putExtra(KEY_DATA, "")
+                    intent.putExtra(KEY_NUMBER_OF_FACES, faces.size)
+                    setResult(RESULT_ERROR, intent)
+                }
+                finish()
+            }
+            .addOnFailureListener { e ->
+                e.message?.let { Log.e(TAG, it) }
+            }
     }
 
-    private fun processImageToText(image: InputImage) {
+    private fun processImageToText(uri: Uri) {
+        val image: InputImage = InputImage.fromFilePath(this@ImageReaderActivity, uri)
         val recognizer = TextRecognition.getClient(TextRecognizerOptions.DEFAULT_OPTIONS)
         recognizer.process(image)
             .addOnSuccessListener { visionText ->
                 Log.d(TAG, visionText.text)
                 val intent = Intent()
-                intent.putExtra("text", visionText.text)
-                setResult(RESULT_OK, intent)
+                if(visionText.text.isNotEmpty()) {
+                    intent.putExtra(KEY_RECOGNIZE_TYPE, recognizeType.toString())
+                    intent.putExtra(KEY_DATA, visionText.text)
+                    setResult(RESULT_SUCCESS, intent)
+                }else{
+                    intent.putExtra(KEY_RECOGNIZE_TYPE, recognizeType.toString())
+                    intent.putExtra(KEY_DATA, "")
+                    setResult(RESULT_ERROR, intent)
+                }
                 finish()
             }
             .addOnFailureListener { e ->
@@ -193,14 +229,17 @@ class ImageReaderActivity : AppCompatActivity() {
         }
     }
 
-
     override fun onDestroy() {
         cameraExecutor.shutdown()
         super.onDestroy()
     }
 
-
     companion object {
+        const val KEY_DATA ="data"
+        const val RESULT_SUCCESS =1
+        const val RESULT_ERROR =0
+        const val KEY_RECOGNIZE_TYPE ="recognizeType"
+        const val KEY_NUMBER_OF_FACES ="faces"
         private const val TAG = "imagesdk"
         private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
         private const val REQUEST_CODE_PERMISSIONS = 10

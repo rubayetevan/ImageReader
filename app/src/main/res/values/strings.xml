@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">ImageReader</string>
+    <string name="read_text_from_id_card">Read text from ID card</string>
+    <string name="detect_face">Detect face</string>
+    <string name="image_of_a_face">Image of a face</string>
 </resources>
