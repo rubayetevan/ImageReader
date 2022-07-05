@@ -23,6 +23,7 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.lifecycleScope
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.face.FaceDetection
@@ -132,8 +133,6 @@ class ImageReaderActivity : AppCompatActivity() {
         val image: InputImage = InputImage.fromFilePath(this@ImageReaderActivity, uri)
         val highAccuracyOpts = FaceDetectorOptions.Builder()
             .setPerformanceMode(FaceDetectorOptions.PERFORMANCE_MODE_ACCURATE)
-            .setLandmarkMode(FaceDetectorOptions.LANDMARK_MODE_ALL)
-            .setClassificationMode(FaceDetectorOptions.CLASSIFICATION_MODE_ALL)
             .build()
         val detector = FaceDetection.getClient(highAccuracyOpts)
         detector.process(image)
@@ -208,7 +207,7 @@ class ImageReaderActivity : AppCompatActivity() {
 
                 // Bind use cases to camera
                 cameraProvider.bindToLifecycle(
-                    this@ImageReaderActivity, cameraSelector, preview, imageCapture)
+                    this@ImageReaderActivity as LifecycleOwner, cameraSelector, preview, imageCapture)
 
             } catch (exc: Exception) {
                 Log.e(TAG, "Use case binding failed", exc)
