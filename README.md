@@ -17,6 +17,7 @@ graph TD;
     Put_imageSDK_extracted_path_as_source_directory --> finish;
     
 ```
+imageSDK_extracted_path: `../ImageReader/imageSDK`
 
 Again go to:
 
@@ -185,6 +186,9 @@ android {
 ```
 ## Status
 Version 1 is now released and stable.
+
+## Sample
+Sample app path: `../ImageReader`
 
 ## License
 [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
