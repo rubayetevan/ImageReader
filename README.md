@@ -113,7 +113,7 @@ class MainActivity : AppCompatActivity() {
         viewBinding.btnReadText.visibility= View.VISIBLE
 
         viewBinding.btnDetectFace.setOnClickListener {
-            viewBinding.imageFace.setImageResource(0)
+            viewBinding.imageFace.setImageDrawable(null)
             ImageReaderActivity.start(this@MainActivity,
                 getContent,
                 RecognizeType.FACE)
