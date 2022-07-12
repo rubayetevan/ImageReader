@@ -8,7 +8,7 @@ ImageSDK is a android library which helps host applications to extract text and 
 You can download it from [github](https://github.com/rubayetevan/ImageReader) as zip file.
 Then extract it to your local disk. Now open your project in android studio and go to:
 ```mermaid
-graph TD;
+flowchart LR;
     File --> Project_Structure; 
     Project_Structure --> Modules;
     Modules --> + ;
@@ -22,7 +22,7 @@ imageSDK_extracted_path: `../ImageReader/imageSDK`
 Again go to:
 
 ```mermaid
-graph TD;
+flowchart LR;
     File --> Project_Structure; 
     Project_Structure --> Dependencies;
     Dependencies --> app ;
