@@ -1,7 +1,6 @@
 package com.veriff.imagereader
 
 import android.net.Uri
-import android.opengl.Visibility
 import android.os.Bundle
 import android.util.Log
 import android.view.View
@@ -11,7 +10,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.squareup.picasso.Picasso
 import com.veriff.imagereader.databinding.ActivityMainBinding
 import com.veriff.imagesdk.ImageReaderActivity
-import com.veriff.imagesdk.databinding.ActivityImageReaderBinding
 import com.veriff.imagesdk.util.RecognizeType
 
 class MainActivity : AppCompatActivity() {
