@@ -149,6 +149,12 @@ class ImageReaderActivity : AppCompatActivity() {
             }
             .addOnFailureListener { e ->
                 e.message?.let { Log.e(TAG, it) }
+                val intent = Intent()
+                intent.putExtra(KEY_RECOGNIZE_TYPE, recognizeType.toString())
+                intent.putExtra(KEY_NUMBER_OF_FACES, 0)
+                intent.putExtra(KEY_DATA, "")
+                setResult(RESULT_ERROR, intent)
+                finish()
             }
     }
 
@@ -172,6 +178,11 @@ class ImageReaderActivity : AppCompatActivity() {
             }
             .addOnFailureListener { e ->
                 e.message?.let { Log.e(TAG, it) }
+                val intent = Intent()
+                intent.putExtra(KEY_RECOGNIZE_TYPE, recognizeType.toString())
+                intent.putExtra(KEY_DATA, "")
+                setResult(RESULT_ERROR, intent)
+                finish()
             }
     }
 
