@@ -5,7 +5,7 @@ ImageSDK is a android library which helps host applications to extract text and 
 
 ## Download
 You can download it from [github](https://github.com/rubayetevan/ImageReader).
-Then extract it to your local disk. Now open your project in android studio and go to
+Then extract it to your local disk. Now open your project in android studio and go to:
 ```mermaid
 graph TD;
     File --> Project_Structure; 
@@ -17,13 +17,21 @@ graph TD;
     
 ```
 
-Again go to File --> Project Structure --> Dependencies --> app --> + (Add dependency) --> Module Dependency --> Check imageSDK --> OK --> Apply --> OK
+Again go to:
 
+```mermaid
+graph TD;
+    File --> Project_Structure; 
+    Project_Structure --> Dependencies;
+    Dependencies --> app ;
+    app --> + ;
+    + --> Add_dependency ;
+    Add_dependency --> Module_Dependency;
+    Module_Dependency --> Check_imageSDK;
+    Check_imageSDK --> Ok;
+    Ok --> Apply;
 
-
-
-
-
+```
 Check your `build.gradle` file
 ```groovy
 
