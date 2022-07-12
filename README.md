@@ -84,6 +84,22 @@ android {
 Simple use cases will look something like this:
 
 ```kotlin
+ ImageReaderActivity.start(context,
+                getContent,
+                RecognizeType.FACE) // To detect face from id card
+ //or
+ ImageReaderActivity.start(context,
+                getContent,
+                RecognizeType.TEXT) // To extract text from id card
+                
+ private val getContent =
+         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { it ->
+            // get your result here
+         }
+ ```
+ Example Code: 
+
+```kotlin
 class MainActivity : AppCompatActivity() {
     
     private lateinit var viewBinding: ActivityMainBinding
