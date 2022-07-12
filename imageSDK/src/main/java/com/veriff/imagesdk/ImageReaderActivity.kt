@@ -139,21 +139,22 @@ class ImageReaderActivity : AppCompatActivity() {
             .addOnSuccessListener { faces ->
                 Log.d(TAG, "Number of face found in the image: ${faces.size}")
                 val intent = Intent()
-                if (faces.size == 1) {
-                    intent.putExtra(KEY_RECOGNIZE_TYPE, recognizeType.toString())
-                    intent.putExtra(KEY_DATA, uri.toString())
-                    intent.putExtra(KEY_NUMBER_OF_FACES, faces.size)
-                    setResult(RESULT_SUCCESS, intent)
-                } else {
-                    intent.putExtra(KEY_RECOGNIZE_TYPE, recognizeType.toString())
-                    intent.putExtra(KEY_DATA, "")
-                    intent.putExtra(KEY_NUMBER_OF_FACES, faces.size)
-                    setResult(RESULT_ERROR, intent)
-                }
+                intent.putExtra(KEY_RECOGNIZE_TYPE, recognizeType.toString())
+                intent.putExtra(KEY_NUMBER_OF_FACES, faces.size)
+                val value = if(faces.size == 1) uri.toString() else ""
+                intent.putExtra(KEY_DATA, value)
+                val result = if(faces.size == 1) RESULT_SUCCESS else RESULT_ERROR
+                setResult(result, intent)
                 finish()
             }
             .addOnFailureListener { e ->
                 e.message?.let { Log.e(TAG, it) }
+                val intent = Intent()
+                intent.putExtra(KEY_RECOGNIZE_TYPE, recognizeType.toString())
+                intent.putExtra(KEY_NUMBER_OF_FACES, 0)
+                intent.putExtra(KEY_DATA, "")
+                setResult(RESULT_ERROR, intent)
+                finish()
             }
     }
 
@@ -177,6 +178,11 @@ class ImageReaderActivity : AppCompatActivity() {
             }
             .addOnFailureListener { e ->
                 e.message?.let { Log.e(TAG, it) }
+                val intent = Intent()
+                intent.putExtra(KEY_RECOGNIZE_TYPE, recognizeType.toString())
+                intent.putExtra(KEY_DATA, "")
+                setResult(RESULT_ERROR, intent)
+                finish()
             }
     }
 
@@ -263,7 +269,7 @@ class ImageReaderActivity : AppCompatActivity() {
                 }
             }.toTypedArray()
 
-        private lateinit var recognizeType: RecognizeType
+        lateinit var recognizeType: RecognizeType
 
         fun start(
             context: Context,
