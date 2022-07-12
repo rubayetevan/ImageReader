@@ -15,7 +15,6 @@ flowchart LR;
     + --> import ;
     import --> Put_imageSDK_extracted_path_as_source_directory ;
     Put_imageSDK_extracted_path_as_source_directory --> finish;
-    
 ```
 imageSDK_extracted_path: `../ImageReader/imageSDK`
 
@@ -32,11 +31,9 @@ flowchart LR;
     Module_Dependency --> Check_imageSDK;
     Check_imageSDK --> Ok;
     Ok --> Apply;
-
 ```
 Check your `build.gradle` file
 ```groovy
-
 dependencies {
     implementation 'androidx.core:core-ktx:1.7.0'
     implementation 'androidx.appcompat:appcompat:1.4.2'
@@ -47,12 +44,10 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
 }
-
 ```
 
 Check your `settings.gradle` file
 ```groovy
-
 pluginManagement {
     repositories {
         gradlePluginPortal()
@@ -70,13 +65,10 @@ dependencyResolutionManagement {
 rootProject.name = "My Application"
 include ':app'
 include ':imageSDK' // <--check this line
-
-
 ```
 
 Add these lines on your app's `build.gradle` file
 ```groovy
-
 android {
     
     compileOptions {
@@ -85,7 +77,6 @@ android {
     }
    
 }
-
 ```
 
 ## How do I use ImageSDK?
@@ -93,7 +84,6 @@ android {
 Simple use cases will look something like this:
 
 ```kotlin
-
 class MainActivity : AppCompatActivity() {
     
     private lateinit var viewBinding: ActivityMainBinding
@@ -141,7 +131,8 @@ class MainActivity : AppCompatActivity() {
                         } else if (it.resultCode == ImageReaderActivity.RESULT_ERROR) {
                         
                             viewBinding.btnDetectFace.visibility= View.VISIBLE
-                            val numberOfFaces = it.data?.getIntExtra(ImageReaderActivity.KEY_NUMBER_OF_FACES, 0)
+                            val numberOfFaces = it.data?
+                            .getIntExtra(ImageReaderActivity.KEY_NUMBER_OF_FACES, 0)
                             Toast.makeText(this@MainActivity,
                                 "$numberOfFaces face(s) detected in the image",
                                 Toast.LENGTH_SHORT).show()
@@ -169,7 +160,6 @@ class MainActivity : AppCompatActivity() {
         }
 
 }
-
 ```
 ## Compatibility
 
@@ -189,6 +179,9 @@ Version 1 is now released and stable.
 
 ## Sample
 Sample app path: `../ImageReader`
+
+## Author
+[Md Rubayet Hassan](https://www.linkedin.com/in/rubayethassan/)
 
 ## License
 [Apache License, Version 2.0](https://www.apache.org/licenses/LICENSE-2.0)
