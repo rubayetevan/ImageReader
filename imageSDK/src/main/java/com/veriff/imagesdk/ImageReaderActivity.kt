@@ -165,15 +165,11 @@ class ImageReaderActivity : AppCompatActivity() {
             .addOnSuccessListener { visionText ->
                 Log.d(TAG, visionText.text)
                 val intent = Intent()
-                if(visionText.text.isNotEmpty()) {
-                    intent.putExtra(KEY_RECOGNIZE_TYPE, recognizeType.toString())
-                    intent.putExtra(KEY_DATA, visionText.text)
-                    setResult(RESULT_SUCCESS, intent)
-                }else{
-                    intent.putExtra(KEY_RECOGNIZE_TYPE, recognizeType.toString())
-                    intent.putExtra(KEY_DATA, "")
-                    setResult(RESULT_ERROR, intent)
-                }
+                intent.putExtra(KEY_RECOGNIZE_TYPE, recognizeType.toString())
+                val value = visionText.text.ifEmpty { "" }
+                intent.putExtra(KEY_DATA,value)
+                val result = if(visionText.text.isNotEmpty()) RESULT_SUCCESS else RESULT_ERROR
+                setResult(result, intent)
                 finish()
             }
             .addOnFailureListener { e ->
