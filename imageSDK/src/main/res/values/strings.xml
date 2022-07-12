@@ -1,1 +1,4 @@
-<resources></resources>
+<resources>
+    <string name="take_photo">Take Photo</string>
+    <string name="please_wait_recognizing">Please wait. Analyzing the image…</string>
+</resources>
